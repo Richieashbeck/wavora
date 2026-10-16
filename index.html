@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wavora</title>
+<meta name="theme-color" content="#160F24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one phone-width app column, screens scroll, tab bar pinned at the foot. Single dark look, matching the app design. */
+:root {
+  --bg: #1E1530; --deep: #160F24; --card: #241A36; --line: #2C2240; --border: #3D3254;
+  --text: #FFF9F5; --sub: #D9D1E6; --muted: #B8AECB;
+  --coral: #FF5A4E; --gold: #FFB627; --teal: #14B8A6; --tealtext: #8FE3D8; --ink: #1F1B24; --danger: #D7263D; --warn: #FF8A80;
+  --scrim: rgba(20,14,32,.65);
+  --font: 'Manrope', ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--deep); color: var(--text); font-family: var(--font); font-size: 15px; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+#app { height: 100%; max-width: 480px; margin: 0 auto; background: var(--bg); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.scr { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.pad { padding: 16px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px)); }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.wrap { flex-wrap: wrap; }
+h1, h2, h3, p { margin: 0; text-wrap: balance; }
+.h1 { font-size: 28px; font-weight: 800; line-height: 1.15; }
+.h2 { font-size: 22px; font-weight: 800; }
+.h3 { font-size: 17px; font-weight: 800; }
+.b { font-weight: 700; } .x { font-weight: 800; }
+.s13 { font-size: 13px; } .s12 { font-size: 12px; } .s14 { font-size: 14px; }
+.sub { color: var(--sub); } .muted { color: var(--muted); } .gold { color: var(--gold); } .teal { color: var(--tealtext); } .coral { color: var(--coral); } .warn { color: var(--warn); }
+.num { font-variant-numeric: tabular-nums; }
+.wordmark { font-size: 26px; font-weight: 800; letter-spacing: -.5px; color: var(--coral); }
+
+.btn { height: 52px; border-radius: 26px; padding: 0 20px; font-weight: 800; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; width: 100%; background: var(--coral); color: var(--ink); }
+.btn.light { background: var(--text); color: var(--ink); }
+.btn.gold { background: var(--gold); color: var(--ink); }
+.btn.out { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn.sm { height: 40px; font-size: 13px; width: auto; padding: 0 14px; border-radius: 20px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.link { color: var(--gold); font-weight: 700; }
+.ibtn { width: 44px; height: 44px; border-radius: 22px; background: var(--line); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.ibtn.scrim { background: var(--scrim); }
+.ibtn.lg { width: 52px; height: 52px; border-radius: 26px; }
+.ibtn.on { background: var(--text); color: var(--ink); }
+.ibtn svg { width: 22px; height: 22px; }
+
+.chip { height: 38px; padding: 0 16px; border-radius: 19px; border: 1px solid var(--border); font-weight: 700; font-size: 14px; flex: none; }
+.chip[aria-pressed="true"] { background: var(--text); color: var(--ink); border-color: var(--text); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+.seg button { height: 42px; border-radius: 12px; border: 1px solid var(--border); font-weight: 700; font-size: 13px; }
+.seg button[aria-checked="true"] { background: var(--text); color: var(--ink); border-color: var(--text); }
+.hscroll { display: flex; gap: 8px; overflow-x: auto; padding: 12px 20px; scrollbar-width: none; }
+.hscroll::-webkit-scrollbar { display: none; }
+
+.card { background: var(--card); border-radius: 16px; }
+.card.p { padding: 16px; }
+.list > * + * { border-top: 1px solid var(--line); }
+.li { min-height: 52px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; font-weight: 600; }
+.input { height: 48px; width: 100%; border-radius: 14px; border: 1px solid var(--border); background: var(--card); padding: 0 14px; font-weight: 600; outline: none; }
+.input:focus { border-color: var(--gold); }
+textarea.input { height: 72px; padding-top: 10px; resize: none; }
+.label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; display: block; }
+
+.avatar { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+.badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--teal); color: var(--ink); }
+.badge.gold { background: var(--gold); } .badge.coral { background: var(--coral); }
+.pill { background: var(--scrim); border-radius: 8px; padding: 4px 9px; font-size: 12px; font-weight: 700; }
+
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tile { height: 196px; border-radius: 18px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+.tabs { display: flex; gap: 24px; padding: 4px 20px 0; }
+.tabs button { padding: 10px 0; font-weight: 700; font-size: 16px; color: var(--muted); border-bottom: 3px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--text); border-color: var(--coral); }
+
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; background: var(--deep); border-top: 1px solid var(--line); padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+.tabbar button { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; color: var(--muted); min-height: 52px; justify-content: center; }
+.tabbar button[aria-current="page"] { color: var(--text); }
+.tabbar svg { width: 24px; height: 24px; }
+.golive { width: 56px; height: 56px; border-radius: 28px; background: var(--coral); color: var(--ink); justify-self: center; margin-top: -18px; display: flex; align-items: center; justify-content: center; }
+.golive svg { width: 28px; height: 28px; }
+
+.stage { position: relative; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.stage .placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-weight: 600; font-size: 14px; pointer-events: none; }
+.stage .top { position: relative; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.stage .bottom { position: relative; margin-top: auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
+.msgs { display: flex; flex-direction: column; gap: 8px; max-height: 38vh; overflow-y: auto; }
+.msg { align-self: flex-start; background: rgba(20,14,32,.55); padding: 6px 10px; border-radius: 12px; font-size: 14px; line-height: 1.35; max-width: 85%; overflow-wrap: anywhere; }
+.msg.gift { background: rgba(255,182,39,.22); border: 1px solid var(--gold); }
+.rail { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.goal { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.goal > i { display: block; height: 100%; background: var(--gold); border-radius: 4px; }
+.goal.teal > i { background: var(--teal); }
+
+.bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; overflow-wrap: anywhere; }
+.bubble.them { align-self: flex-start; background: var(--line); border-bottom-left-radius: 6px; }
+.bubble.me { align-self: flex-end; background: var(--coral); color: var(--ink); border-bottom-right-radius: 6px; font-weight: 600; }
+
+.sheetwrap { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; }
+.sheetwrap .scrimfill { flex: 1; background: rgba(10,6,18,.6); }
+.sheet { background: var(--bg); border-radius: 24px 24px 0 0; padding: 12px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); max-height: 88%; overflow-y: auto; animation: up .22s ease-out; }
+.grip { width: 40px; height: 5px; border-radius: 3px; background: var(--border); margin: 0 auto 12px; }
+@keyframes up { from { transform: translateY(40px); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .sheet, .toast { animation: none; } }
+.gifts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.gift { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 2px; border-radius: 14px; background: var(--card); border: 2px solid transparent; }
+.gift[aria-pressed="true"] { background: #3A2B52; border-color: var(--gold); }
+.gift .dot { width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--ink); font-weight: 800; }
+.radio { width: 20px; height: 20px; border-radius: 10px; border: 2px solid #6E6488; flex: none; }
+[aria-checked="true"] > .radio { border: 6px solid var(--coral); }
+.toggle { width: 52px; height: 30px; border-radius: 15px; background: var(--border); padding: 3px; display: flex; flex: none; }
+.toggle i { width: 24px; height: 24px; border-radius: 12px; background: var(--text); }
+.toggle[aria-checked="true"] { background: var(--teal); justify-content: flex-end; }
+.toast { position: absolute; left: 16px; right: 16px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 40; background: var(--text); color: var(--ink); font-weight: 700; padding: 12px 16px; border-radius: 14px; animation: up .2s ease-out; }
+.stats3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.steps i { height: 4px; border-radius: 2px; background: var(--border); }
+.steps i.on { background: var(--coral); }
+.frame { width: 200px; height: 250px; border-radius: 100px; border: 3px dashed var(--teal); margin: 8px auto; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+.cover { height: 110px; background: #45305E; display: flex; justify-content: flex-end; padding: 16px; }
+.searchwrap { position: relative; }
+.searchwrap svg { position: absolute; left: 16px; top: 15px; width: 18px; height: 18px; color: var(--muted); }
+.searchwrap .input { border-radius: 24px; padding-left: 44px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+
+<script>
+(() => {
+// ---------- money (same rules as the app's src/money.js; all amounts in pence) ----------
+const sparksToPence = (s) => Math.round((s * 99) / 100);
+const creatorPence = (s) => Math.round((s * 45) / 100);
+const gbp = (p) => '£' + (p / 100).toFixed(2);
+const sp = (n) => n.toLocaleString('en-GB') + ' Sparks';
+const giftError = (bal, s) => (s > bal ? 'Not enough Sparks. Top up in your wallet.' : null);
+const purchaseError = (spent, limit, price) => (spent + price > limit ? 'That would go over your daily limit of ' + gbp(limit) + '.' : null);
+const withdrawError = (avail) => (avail < 2000 ? 'You can withdraw once you have £20.00 available.' : null);
+
+// ---------- sample content ----------
+const streams = [
+  { id: 'maya', host: 'maya.sings', initials: 'MS', title: 'Acoustic requests', viewers: '1.2k', color: '#45305E', avatar: '#6B4E8F', cat: 'Music' },
+  { id: 'theo', host: 'theo.talks', initials: 'TT', title: 'Late-night chat', viewers: '486', color: '#2B3F5E', avatar: '#3E6A8F', cat: 'Just Chatting' },
+  { id: 'laugh', host: 'laughlab', initials: 'LL', title: 'Open mic comedy', viewers: '2.8k', color: '#5A2E3C', avatar: '#8F4E5E', cat: 'Comedy' },
+  { id: 'lucia', host: 'profe.lucia', initials: 'PL', title: 'Spanish for beginners', viewers: '312', color: '#224A4C', avatar: '#4E8F7A', cat: 'Languages' },
+];
+const newbies = [['jun.draws', 'JN', '#6B4E8F'], ['ama.keys', 'AK', '#3E6A8F'], ['rosa.cooks', 'RS', '#8F4E5E'], ['ben.lifts', 'BO', '#4E8F7A']];
+const cats = ['All', 'Music', 'Just Chatting', 'Comedy', 'Talent', 'Gaming', 'Dance', 'Languages', 'Creative', 'Cooking'];
+const gifts = [
+  ['heart', 'Heart', 1, '#FF5A4E'], ['clap', 'Clap', 5, '#FFB627'], ['rose', 'Rose', 10, '#E0446F'], ['smile', 'Smile', 20, '#FFD27A'],
+  ['guitar', 'Guitar', 100, '#14B8A6'], ['confetti', 'Confetti', 300, '#8F7AE0'], ['rocket', 'Rocket', 600, '#5AA9FF'], ['crown', 'Crown', 1500, '#FFB627'],
+].map(([id, name, sparks, color]) => ({ id, name, sparks, color }));
+const bundles = [[100, 99], [550, 499], [1150, 999], [5750, 4999]];
+const convos = [
+  { id: 'maya', name: 'maya.sings', initials: 'MS', color: '#6B4E8F', verified: true, time: '21:14' },
+  { id: 'theo', name: 'theo.talks', initials: 'TT', color: '#3E6A8F', time: 'Yesterday' },
+  { id: 'crew', name: 'Friday crew (8)', initials: 'FC', color: '#4E8F7A', time: 'Mon' },
+  { id: 'jake', name: 'jake_k02', initials: 'JK', color: '#8F4E5E', fresh: true, time: 'Sun' },
+];
+const reasons = ['Inappropriate content', 'Harassment or bullying', 'Fake account', 'Spam', 'Might be under 18', 'Fraud or scam', 'Something else'];
+
+// ---------- saved state (this phone only) ----------
+const KEY = 'wavora-demo-v1';
+const fresh = () => ({
+  onboarded: false, sparks: 1150, spentToday: 640, limit: 2000, avail: 31240, pending: 4815, following: {},
+  profile: { name: 'Maya Santos', username: 'maya.sings', interests: ['Music', 'Comedy'] },
+  prefs: { online: true, hidden: false },
+  messages: {
+    maya: [['them', 'Thanks for the rocket last night!'], ['them', "Same time Friday? I'm doing a covers set."]],
+    theo: [['them', 'Good chat tonight, thanks for joining.']],
+    crew: [['them', 'priya.k: who is hosting next week?']],
+    jake: [['them', 'Missed video call']],
+  },
+  activity: [['Gifts received', '14 Oct · 6,940 Sparks', '+£31.23'], ['Payout to bank ••42', '12 Oct', '−£250.00']],
+});
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch (e) { S = fresh(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+// ---------- screen state (not saved) ----------
+const U = { view: S.onboarded ? 'home' : 'welcome', back: [], feed: 'For You', cat: 'All', q: '', stream: 'maya', sheet: null, pick: 'rose', err: '', chat: [], hearts: 38000,
+  reason: null, reported: false, setupPicked: null, audience: 'Public', opts: { Comments: true, Gifts: true, 'Guest requests': true, 'Beauty filter': false },
+  host: null, summary: null, rec: 'Publish replay to followers', convo: 'maya', call: null, confirm: null, toast: '' };
+
+const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const app = document.getElementById('app');
+let timer = null;
+
+// ---------- icons ----------
+const P = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="currentColor"/>',
+  share: '<path d="M4 12v7h16v-7M12 3v12M7 8l5-5 5 5"/>',
+  flag: '<path d="M5 21V4h11l-2 4 2 4H5"/>',
+  gift: '<path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-2-4-6-3-5 0M12 7c2-4 6-3 5 0"/>',
+  send: '<path d="M4 12l16-8-6 16-3-7z"/>',
+  phone: '<path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  check: '<circle cx="12" cy="12" r="10" fill="#14B8A6" stroke="none"/><path d="M7.5 12.5l3 3 6-6" stroke="#1F1B24"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c1-3.5 4-5 7-5s6 1.5 7 5M17 8v6M14 11h6"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>',
+};
+const ic = (n, label) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' + (label ? 'role="img" aria-label="' + label + '"' : 'aria-hidden="true"') + '>' + P[n] + '</svg>';
+const avatar = (txt, color, size = 44, ring) => '<span class="avatar" style="width:' + size + 'px;height:' + size + 'px;background:' + color + ';font-size:' + Math.round(size / 3.2) + 'px;' + (ring ? 'border:3px solid ' + ring : '') + '">' + esc(txt) + '</span>';
+const verified = '<span style="display:inline-flex;width:16px;height:16px">' + ic('check', 'Verified') + '</span>';
+const header = (title, right = '') => '<div class="row" style="padding:10px 12px 4px">' + (U.back.length ? '<button class="ibtn" style="background:none" data-a="back" aria-label="Back">' + ic('back') + '</button>' : '') + '<h1 class="h2 grow" style="padding-left:' + (U.back.length ? 0 : 8) + 'px">' + title + '</h1>' + right + '</div>';
+const toggle = (key, on, label) => '<button class="toggle" role="switch" aria-checked="' + on + '" aria-label="' + esc(label) + '" data-a="' + key + '"><i></i></button>';
+
+// ---------- screens ----------
+const V = {};
+
+V.welcome = () => '<div class="scr pad col" style="justify-content:space-between;min-height:100%"><div class="col" style="flex:1;justify-content:center;gap:14px"><div class="wordmark" style="font-size:48px">wavora</div><h1 class="h1">Go live. Meet people.<br>Fair for everyone.</h1><p class="sub" style="font-size:16px;line-height:1.5">Watch and chat with creators worldwide. Prices in pounds, creators keep 75%, and every account is a verified adult.</p></div>' +
+  '<div class="col" style="gap:10px"><button class="btn light" data-a="go" data-v="age">Continue with Apple</button><button class="btn out" data-a="go" data-v="age">Continue with Google</button><button class="btn out" data-a="go" data-v="age">Use phone or email</button><button class="link" style="height:44px" data-a="guest">Browse as a guest</button><p class="s12 muted" style="text-align:center">Wavora is for adults 18 and over. This is a demo: nothing you do here is sent anywhere.</p></div></div>';
+
+const steps = (n) => '<div class="row between"><button class="ibtn" style="background:none;margin-left:-12px" data-a="back" aria-label="Back">' + ic('back') + '</button><span class="s13 b muted">Step ' + n + ' of 3</span></div><div class="steps">' + [1, 2, 3].map((i) => '<i class="' + (i <= n ? 'on' : '') + '"></i>').join('') + '</div>';
+
+V.age = () => '<div class="scr pad col">' + steps(2) + '<h1 class="h1" style="margin-top:16px">Confirm you\'re 18 or over</h1><p class="sub" style="font-size:16px">A quick selfie estimates your age. It takes about 10 seconds.</p><div class="frame">Camera frame</div>' +
+  '<p class="s14 sub">✓ Your selfie is deleted as soon as the check is done.</p><p class="s14 sub">✓ Going live, calls and payouts need a quick ID check later.</p><button class="btn" data-a="go" data-v="setup">Start face check</button><button class="btn out" data-a="go" data-v="setup">Use photo ID instead</button></div>';
+
+V.setup = () => {
+  const picked = U.setupPicked || S.profile.interests;
+  return '<div class="scr pad col">' + steps(3) + '<h1 class="h1" style="margin-top:16px">Make it yours</h1>' +
+    '<div><label class="label" for="f-name">Display name</label><input class="input" id="f-name" value="' + esc(S.profile.name) + '" maxlength="40"></div>' +
+    '<div><label class="label" for="f-user">Username</label><input class="input" id="f-user" value="' + esc(S.profile.username) + '" maxlength="24" autocapitalize="none" autocomplete="off"><p class="s12 teal" id="f-user-hint" style="margin-top:4px">Looks good</p></div>' +
+    '<div><span class="label">What are you into? (' + picked.length + ' picked)</span><div class="row wrap" style="gap:8px">' + cats.slice(1).map((c) => '<button class="chip" aria-pressed="' + picked.includes(c) + '" data-a="interest" data-v="' + c + '">' + c + '</button>').join('') + '</div></div>' +
+    '<button class="btn" data-a="finish" id="finish">Start exploring</button></div>';
+};
+
+const tabbar = (cur) => '<nav class="tabbar" aria-label="Main">' +
+  '<button data-a="tab" data-v="home" aria-current="' + (cur === 'home' ? 'page' : 'false') + '">' + ic('home') + 'Home</button>' +
+  '<button data-a="tab" data-v="discover" aria-current="' + (cur === 'discover' ? 'page' : 'false') + '">' + ic('compass') + 'Discover</button>' +
+  '<button class="golive" data-a="go" data-v="golive" aria-label="Go Live">' + ic('plus') + '</button>' +
+  '<button data-a="tab" data-v="inbox" aria-current="' + (cur === 'inbox' ? 'page' : 'false') + '">' + ic('chat') + 'Inbox</button>' +
+  '<button data-a="tab" data-v="profile" aria-current="' + (cur === 'profile' ? 'page' : 'false') + '">' + ic('user') + 'Profile</button></nav>';
+
+const tile = (s) => '<button class="tile" style="background:' + s.color + '" data-a="watch" data-v="' + s.id + '" aria-label="' + esc(s.title + ' by ' + s.host + ', ' + s.viewers + ' watching') + '"><span class="row between" style="width:100%"><span class="badge">LIVE</span><span class="pill num">' + s.viewers + ' watching</span></span><span><span class="b" style="display:block">' + esc(s.title) + '</span><span class="s13 sub">@' + s.host + '</span></span></button>';
+
+V.home = () => {
+  const shown = streams.filter((s) => U.cat === 'All' || s.cat === U.cat);
+  return '<div class="row between" style="padding:14px 20px 0"><span class="wordmark">wavora</span><button class="ibtn" data-a="tab" data-v="discover" aria-label="Search">' + ic('search') + '</button></div>' +
+    '<div class="tabs" role="tablist">' + ['For You', 'Following', 'Trending'].map((t) => '<button role="tab" aria-selected="' + (U.feed === t) + '" data-a="feed" data-v="' + t + '">' + t + '</button>').join('') + '</div>' +
+    '<div class="hscroll">' + cats.slice(0, 6).map((c) => '<button class="chip" aria-pressed="' + (U.cat === c) + '" data-a="cat" data-v="' + c + '">' + c + '</button>').join('') + '</div>' +
+    '<div class="scr" style="padding:0 20px 24px">' + (shown.length ? '<div class="tiles">' + shown.map(tile).join('') + '</div>' : '<p class="muted" style="text-align:center;padding:40px 0">No one is live in ' + U.cat + ' right now.</p>') +
+    '<div class="row between" style="margin-top:22px"><h2 class="h3">New streamers</h2><button class="link s14" data-a="tab" data-v="discover">See all</button></div>' +
+    '<div class="row" style="gap:16px;margin-top:12px">' + newbies.map(([h, i, c]) => '<button class="col" style="align-items:center;gap:6px;width:64px" data-a="watch" data-v="maya">' + avatar(i, c, 60, '#FFB627') + '<span class="s12">' + h + '</span></button>').join('') + '</div></div>' + tabbar('home');
+};
+
+const results = () => {
+  const q = U.q.trim().toLowerCase();
+  if (!q) return '';
+  const r = streams.filter((s) => (s.host + ' ' + s.title + ' ' + s.cat).toLowerCase().includes(q));
+  return r.length ? r.map((s) => '<button class="row" style="width:100%;padding:10px 0;text-align:left" data-a="watch" data-v="' + s.id + '">' + avatar(s.initials, s.avatar) + '<span class="grow"><span class="b" style="display:block">' + s.host + '</span><span class="s13 muted">' + esc(s.title) + '</span></span><span class="badge">LIVE</span></button>').join('') : '<p class="muted">No results for "' + esc(U.q) + '".</p>';
+};
+
+V.discover = () => '<div class="scr pad col"><h1 class="h2">Discover</h1><div class="searchwrap">' + ic('search') + '<label class="sr" for="f-q">Search Wavora</label><input class="input" id="f-q" placeholder="Search people, streams, tags" value="' + esc(U.q) + '" autocomplete="off"></div>' +
+  '<div id="results">' + results() + '</div>' +
+  '<h2 class="h3">Categories</h2><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">' + cats.slice(1).map((c, i) => '<button class="b s14" style="height:56px;border-radius:14px;background:' + ['#45305E', '#2B3F5E', '#5A2E3C', '#224A4C', '#4A3A22'][i % 5] + '" data-a="search" data-v="' + c + '">' + c + '</button>').join('') + '</div>' +
+  '<h2 class="h3">Rising stars this week</h2><ol style="list-style:none;padding:0;margin:0" class="col">' + newbies.slice(0, 3).map(([h, i, c], n) => '<li class="row"><span class="x gold" style="width:20px">' + (n + 1) + '</span>' + avatar(i, c) + '<span class="b">' + h + '</span></li>').join('') + '</ol></div>' + tabbar('discover');
+
+V.live = () => {
+  const s = streams.find((x) => x.id === U.stream) || streams[0];
+  const following = !!S.following[s.id];
+  return '<div class="stage" style="background:' + s.color + '"><div class="placeholder">Live video</div>' +
+    '<div class="top col"><div class="row"><div class="row" style="background:var(--scrim);border-radius:26px;padding:4px;gap:8px;min-width:0">' + avatar(s.initials, s.avatar, 40) + '<span class="grow"><span class="b s14" style="display:block">' + s.host + '</span><span class="s12 sub">' + esc(s.title) + '</span></span><button class="btn sm ' + (following ? 'out' : '') + '" data-a="follow" data-v="' + s.id + '">' + (following ? 'Following' : 'Follow') + '</button></div><span class="grow"></span><span class="badge num">' + s.viewers + '</span><button class="ibtn scrim" data-a="back" aria-label="Leave stream">' + ic('close') + '</button></div>' +
+    '<div style="background:var(--scrim);border-radius:14px;padding:10px 12px"><div class="row between s13 b"><span>Goal: new guitar strings</span><span class="gold num">4,200 / 5,000 Sparks</span></div><div class="goal" style="margin-top:8px"><i style="width:84%"></i></div></div></div>' +
+    '<div class="bottom col"><div class="row" style="align-items:flex-end"><div class="msgs grow" id="msgs">' + U.chat.map((m) => '<div class="msg ' + (m.gift ? 'gift' : '') + '"><b class="' + (m.gift || m.pin ? 'gold' : 'teal') + '">' + (m.pin ? 'Pinned · ' : '') + esc(m.who) + '</b> ' + esc(m.text) + '</div>').join('') + '</div>' +
+    '<div class="rail"><button class="ibtn lg scrim coral" data-a="heart" aria-label="Send a heart">' + ic('heart') + '</button><span class="s12 b num" id="hearts" style="margin-top:-8px">' + (U.hearts / 1000).toFixed(1) + 'k</span><button class="ibtn lg scrim" data-a="toast" data-v="Link copied (demo)" aria-label="Share stream">' + ic('share') + '</button><button class="ibtn lg scrim" data-a="sheet" data-v="report" aria-label="Report or block">' + ic('flag') + '</button></div></div>' +
+    '<form class="row" data-f="comment"><label class="sr" for="f-comment">Add a comment</label><input class="input grow" id="f-comment" placeholder="Say something nice…" autocomplete="off" style="border-radius:24px;background:rgba(20,14,32,.75);border:0" maxlength="200"><button type="button" class="ibtn lg" style="background:var(--gold);color:var(--ink)" data-a="sheet" data-v="gift" aria-label="Send a gift">' + ic('gift') + '</button></form></div></div>' + sheet();
+};
+
+const sheet = () => {
+  if (!U.sheet) return '';
+  let body = '';
+  if (U.sheet === 'gift') {
+    const g = gifts.find((x) => x.id === U.pick);
+    body = '<div class="row between"><h2 class="h2">Send a gift</h2><button class="pill gold s14" style="padding:8px 12px" data-a="towallet">' + sp(S.sparks) + ' · Top up</button></div>' +
+      '<div class="gifts" style="margin-top:16px">' + gifts.map((x) => '<button class="gift" aria-pressed="' + (x.id === U.pick) + '" data-a="pick" data-v="' + x.id + '"><span class="dot" style="background:' + x.color + '">' + x.name[0] + '</span><span class="s12 b">' + x.name + '</span><span class="s12 b gold num">' + x.sparks.toLocaleString('en-GB') + '</span><span class="s12 muted num">≈ ' + gbp(sparksToPence(x.sparks)) + '</span></button>').join('') + '</div>' +
+      (U.err ? '<p class="s13 coral" style="margin-top:12px">' + U.err + '</p>' : '') +
+      '<button class="btn" style="margin-top:14px" data-a="sendgift">Send ' + g.name + ' · ' + sp(g.sparks) + ' (≈ ' + gbp(sparksToPence(g.sparks)) + ')</button>';
+  } else if (U.sheet === 'report') {
+    const s = streams.find((x) => x.id === U.stream) || streams[0];
+    body = U.reported
+      ? '<div class="col" style="padding:16px 0"><h2 class="h2">Thanks for telling us</h2><p class="sub">Our safety team will review this, and you\'ll get an update. The host won\'t know it was you.</p><button class="btn" data-a="closesheet">Done</button></div>'
+      : '<h2 class="h2">Report this stream</h2><p class="s14 muted" style="margin:4px 0 8px">Reports are anonymous.</p><div role="radiogroup" class="list">' + reasons.map((r) => '<button class="li" style="padding:0 4px" role="radio" aria-checked="' + (U.reason === r) + '" data-a="reason" data-v="' + r + '">' + r + '<span class="radio"></span></button>').join('') + '</div>' +
+        '<label class="sr" for="f-details">Add details</label><textarea class="input" id="f-details" placeholder="Add details (optional)" style="margin-top:12px"></textarea>' +
+        '<button class="btn" style="margin-top:12px" data-a="report" ' + (U.reason ? '' : 'disabled') + '>Send report</button><button class="btn out" style="margin-top:8px" data-a="block">Block ' + s.host + '</button>';
+  } else if (U.sheet === 'confirm') {
+    const c = U.confirm;
+    body = '<div class="col"><h2 class="h2">' + c.title + '</h2><p class="sub">' + c.text + '</p><button class="btn ' + (c.danger ? '' : '') + '" data-a="confirmyes">' + c.yes + '</button><button class="btn out" data-a="closesheet">Cancel</button></div>';
+  }
+  return '<div class="sheetwrap"><button class="scrimfill" data-a="closesheet" aria-label="Close"></button><div class="sheet" role="dialog" aria-modal="true"><div class="grip"></div>' + body + '</div></div>';
+};
+
+V.golive = () => '<div style="height:240px;flex:none;background:#3A2B52;position:relative;display:flex;align-items:center;justify-content:center" class="muted">Camera preview<div class="row between" style="position:absolute;top:12px;left:16px;right:16px"><button class="ibtn scrim" data-a="back" aria-label="Cancel">' + ic('close') + '</button></div></div>' +
+  '<div class="scr pad col"><div><label class="label" for="f-title">Stream title</label><input class="input" id="f-title" value="Acoustic requests, all night" maxlength="80"></div>' +
+  '<div><span class="label">Who can watch</span><div class="seg" role="radiogroup" aria-label="Who can watch">' + ['Public', 'Followers', 'Fan club', 'Private'].map((o) => '<button role="radio" aria-checked="' + (U.audience === o) + '" data-a="aud" data-v="' + o + '">' + o + '</button>').join('') + '</div></div>' +
+  '<div class="card list">' + Object.keys(U.opts).map((k) => '<div class="li">' + k + toggle('opt', U.opts[k], k).replace('data-a="opt"', 'data-a="opt" data-v="' + k + '"') + '</div>').join('') + '</div>' +
+  '<div class="card p s13 sub">You keep 75% of gift value: £0.45 for every 100 Sparks you receive.</div><button class="btn" data-a="startlive">Go Live</button></div>';
+
+const clock = (sec) => Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+V.host = () => {
+  const h = U.host;
+  return '<div class="stage" style="background:#3A2B52"><div class="placeholder">Your camera' + (h.guest ? ' + ' + h.guest : '') + '</div>' +
+    '<div class="top col"><div class="row"><span class="badge coral num" id="h-clock" style="font-size:13px;padding:6px 10px">LIVE ' + clock(h.sec) + '</span><span class="pill num" id="h-viewers">' + (40 + h.sec * 3).toLocaleString('en-GB') + ' watching</span><span class="grow"></span><button class="btn sm light" data-a="endlive">End</button></div>' +
+    '<div class="stats3" style="background:var(--scrim);border-radius:14px;padding:10px;text-align:center"><div><div class="x teal num" id="h-fol">+' + Math.floor(h.sec / 6) + '</div><div class="s12 sub">new followers</div></div><div><div class="x gold num" id="h-sparks">' + h.sparks.toLocaleString('en-GB') + '</div><div class="s12 sub">Sparks</div></div><div><div class="x num" id="h-earn">' + gbp(creatorPence(h.sparks)) + '</div><div class="s12 sub">you\'ve earned</div></div></div>' +
+    (h.req ? '<div class="card p" style="background:var(--bg)"><p class="x s14">ama.keys wants to join on screen</p><div class="row" style="margin-top:10px">' + avatar('AK', '#3E6A8F', 36) + '<span class="grow b s14">ama.keys <span class="teal">· verified</span></span><button class="btn sm out" data-a="guest-no">Decline</button><button class="btn sm light" data-a="guest-yes">Accept</button></div></div>' : '') + '</div>' +
+    '<div class="bottom col"><div class="msg"><b class="teal">sam_r</b> this is so good</div><button class="msg muted" style="text-align:left" data-a="go" data-v="mod">troll_99 message hidden by filter · <b class="gold">Review</b></button>' +
+    '<div class="row between" style="margin-top:8px"><button class="ibtn lg scrim" data-a="go" data-v="mod" aria-label="Moderation tools">' + ic('shield') + '</button><button class="ibtn lg scrim" data-a="guest-ask" aria-label="Guests">' + ic('people') + '</button><button class="ibtn lg ' + (h.muted ? 'on' : 'scrim') + '" data-a="mute" aria-pressed="' + h.muted + '" aria-label="' + (h.muted ? 'Unmute' : 'Mute') + '">' + ic('mic') + '</button></div></div></div>';
+};
+
+V.mod = () => '<div class="scr pad col">' + header('Moderation') + '<div><span class="label">Slow mode</span><div class="seg" role="radiogroup" aria-label="Slow mode">' + ['Off', '5 s', '15 s', '60 s'].map((o) => '<button role="radio" aria-checked="' + ((U.slow || 'Off') === o) + '" data-a="slow" data-v="' + o + '">' + o + '</button>').join('') + '</div></div>' +
+  '<div class="card list"><div class="li">Followers-only chat' + toggle('fo', !!U.fo, 'Followers-only chat') + '</div></div>' +
+  '<span class="label" style="margin:0">Needs your attention</span><div class="card p"><div class="row">' + avatar('TR', '#5A5A6E', 40) + '<span class="grow"><span class="b">troll_99</span> <span class="badge gold">New account</span><span class="s13 sub" style="display:block">3 messages hidden by the filter</span></span></div>' +
+  (U.modDone ? '<p class="s13 b teal" style="margin-top:10px">' + U.modDone + '. Our safety team has also been told.</p>' : '<div class="row" style="margin-top:12px;gap:6px"><button class="btn sm out grow" data-a="moddo" data-v="Muted for 10 minutes">Mute 10 min</button><button class="btn sm out grow" data-a="moddo" data-v="Removed from your stream">Remove</button><button class="btn sm grow" data-a="moddo" data-v="Banned">Ban</button></div>') +
+  '</div><p class="s12 muted">Banned people can\'t rejoin from a new account on the same verified identity. They can appeal, and a reviewer decides within 72 hours.</p></div>';
+
+V.summary = () => {
+  const m = U.summary;
+  const earned = creatorPence(m.sparks);
+  const stats = [['Length', clock(m.sec)], ['Peak viewers', m.peak.toLocaleString('en-GB')], ['New followers', '+' + Math.floor(m.sec / 6)], ['Sparks', m.sparks.toLocaleString('en-GB')], ['You earned', gbp(earned)], ['Avg watch', Math.max(1, Math.round((m.sec / 60) * 0.6)) + ' min']];
+  return '<div class="scr pad col"><p class="s13 b muted">Stream ended</p><h1 class="h1">Great show, ' + esc(S.profile.name.split(' ')[0]) + '</h1>' +
+    '<div class="stats3">' + stats.map(([k, v]) => '<div class="card" style="padding:12px"><div class="s12 muted">' + k + '</div><div class="x num ' + (k === 'You earned' ? 'gold' : '') + '" style="font-size:18px">' + v + '</div></div>').join('') + '</div>' +
+    '<p class="s13 sub">' + sp(m.sparks) + ' × £0.45 per 100 = ' + gbp(earned) + '. It shows as pending in your wallet for 3 days.</p><h2 class="h3">Recording</h2>' +
+    '<div class="col" style="gap:6px" role="radiogroup">' + ['Publish replay to followers', 'Publish replay publicly', 'Keep private for 30 days', 'Delete recording'].map((o) => '<button class="li card" style="border:1px solid ' + (U.rec === o ? 'var(--coral)' : 'transparent') + '" role="radio" aria-checked="' + (U.rec === o) + '" data-a="rec" data-v="' + o + '">' + o + '<span class="radio"></span></button>').join('') + '</div>' +
+    '<button class="btn" data-a="donelive">Done</button></div>';
+};
+
+V.inbox = () => '<div class="scr">' + header('Inbox') + convos.map((c) => {
+  const msgs = S.messages[c.id] || [];
+  const last = msgs[msgs.length - 1];
+  return '<button class="row" style="width:100%;padding:14px 20px;text-align:left;gap:12px" data-a="openchat" data-v="' + c.id + '">' + avatar(c.initials, c.color, 52) + '<span class="grow"><span class="row" style="gap:6px"><span class="b">' + c.name + '</span>' + (c.verified ? verified : '') + (c.fresh ? '<span class="badge gold">New account</span>' : '') + '</span><span class="s14 sub" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (last ? (last[0] === 'me' ? 'You: ' : '') + esc(last[1]) : '') + '</span></span><span class="s12 muted">' + c.time + '</span></button>';
+}).join('') + '<div class="card p row" style="margin:12px 20px;align-items:flex-start"><span class="teal" style="width:20px;flex:none">' + ic('shield') + '</span><p class="s13 sub">Messages and calls are end-to-end encrypted. People you don\'t follow land in Requests, and their images arrive blurred.</p></div></div>' + tabbar('inbox');
+
+V.chat = () => {
+  const c = convos.find((x) => x.id === U.convo);
+  return '<div class="row" style="padding:8px 12px;border-bottom:1px solid var(--line)"><button class="ibtn" style="background:none" data-a="back" aria-label="Back">' + ic('back') + '</button>' + avatar(c.initials, c.color, 40) + '<span class="b grow">' + c.name + '</span><button class="ibtn" style="background:none" data-a="call" aria-label="Voice call">' + ic('phone') + '</button><button class="ibtn" style="background:none" data-a="call" aria-label="Video call">' + ic('video') + '</button></div>' +
+    '<div class="scr pad col" id="thread" style="gap:8px"><p class="s12 muted" style="text-align:center">Messages are end-to-end encrypted</p>' + (S.messages[c.id] || []).map(([who, t]) => '<div class="bubble ' + who + '">' + esc(t) + '</div>').join('') + '</div>' +
+    '<form class="row" data-f="msg" style="padding:12px max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));border-top:1px solid var(--line)"><label class="sr" for="f-msg">Message</label><input class="input grow" id="f-msg" placeholder="Message" autocomplete="off" style="border-radius:22px" maxlength="500"><button class="ibtn" style="background:var(--coral);color:var(--ink)" aria-label="Send">' + ic('send') + '</button></form>';
+};
+
+V.call = () => {
+  const c = convos.find((x) => x.id === U.convo);
+  const k = U.call;
+  return '<div class="stage" style="background:#2B3F5E"><div class="placeholder">' + c.name + ' video</div><div class="top col" style="align-items:center;gap:6px"><span class="x" style="font-size:18px">' + c.name + '</span><span class="pill row" style="gap:6px"><span class="teal" style="width:12px;height:12px;display:inline-flex">' + ic('lock') + '</span>End-to-end encrypted · <span class="num" id="c-clock">' + clock(k.sec) + '</span></span></div>' +
+    (k.tip ? '<div class="top"><div class="card p" style="background:var(--bg);margin-top:80px"><p class="x">Staying safe on calls</p><p class="s14 sub" style="margin:6px 0 12px">Never share passwords, payment details or your address. If anyone asks you to move to another app or send money, report them.</p><button class="btn sm light" data-a="tipok">Got it</button></div></div>' : '') +
+    '<div class="bottom"><div class="row between"><button class="ibtn lg ' + (k.mic ? 'on' : 'scrim') + '" data-a="cmic" aria-pressed="' + k.mic + '" aria-label="Mute">' + ic('mic') + '</button><button class="ibtn lg ' + (k.cam ? 'on' : 'scrim') + '" data-a="ccam" aria-pressed="' + k.cam + '" aria-label="Camera off">' + ic('video') + '</button><button class="ibtn lg scrim" data-a="toast" data-v="Report sent (demo)" aria-label="Report or block">' + ic('flag') + '</button><button class="ibtn lg" style="background:var(--danger)" data-a="back" aria-label="End call">' + ic('phone') + '</button></div></div></div>';
+};
+
+V.profile = () => {
+  const p = S.profile;
+  const init = p.name.split(' ').map((x) => x[0]).join('').slice(0, 2).toUpperCase();
+  return '<div class="scr"><div class="cover"><button class="ibtn scrim" data-a="go" data-v="settings" aria-label="Settings">' + ic('gear') + '</button></div><div class="pad col" style="padding-top:0"><div style="margin-top:-44px;border:4px solid var(--bg);border-radius:50%;align-self:flex-start;display:inline-flex">' + avatar(init, '#6B4E8F', 88) + '</div>' +
+    '<div><div class="row" style="gap:8px"><h1 class="h2">' + esc(p.name) + '</h1>' + verified + '</div><p class="s14 muted">@' + esc(p.username) + '</p><p class="s14 sub" style="margin-top:6px">Into ' + esc(p.interests.join(', ') || 'everything') + '</p></div>' +
+    '<div class="stats3">' + [['18.4k', 'Followers'], ['210', 'Following'], ['142', 'Streams']].map(([v, k]) => '<div class="card" style="padding:10px;text-align:center"><div class="x num" style="font-size:18px">' + v + '</div><div class="s12 muted">' + k + '</div></div>').join('') + '</div>' +
+    '<button class="btn" data-a="go" data-v="golive">Go Live</button><div class="card list"><button class="li" data-a="go" data-v="wallet">Wallet and earnings<span class="gold num">' + gbp(S.avail) + '</span></button><button class="li" data-a="go" data-v="settings">Privacy and safety<span class="muted" style="width:18px">' + ic('chev') + '</span></button></div></div></div>' + tabbar('profile');
+};
+
+V.wallet = () => {
+  const pct = Math.min(100, Math.round((S.spentToday / S.limit) * 100));
+  return '<div class="scr">' + header('Wallet') + '<div class="pad col" style="padding-top:4px">' +
+    '<div class="card p"><p class="s13 b muted">Sparks balance</p><p class="x gold num" style="font-size:30px">' + S.sparks.toLocaleString('en-GB') + '</p><p class="s13 muted">100 Sparks = £0.99. No timers, no surprise offers.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">' + bundles.map(([s, p]) => '<button style="padding:12px;border-radius:12px;border:1px solid var(--border);text-align:left" data-a="buy" data-v="' + s + '"><span class="x gold num" style="display:block">' + s.toLocaleString('en-GB') + '</span><span class="s13 sub num">' + gbp(p) + '</span></button>').join('') + '</div></div>' +
+    '<div class="card p"><p class="s13 b muted">Available to withdraw</p><div class="row between"><span class="x num" style="font-size:30px">' + gbp(S.avail) + '</span><button class="btn sm" data-a="withdraw">Withdraw</button></div><div class="row between s13" style="margin-top:10px"><span class="sub">Pending · clears in 3 days</span><span class="b num">' + gbp(S.pending) + '</span></div><div class="row between s13" style="margin-top:6px"><span class="sub">Your rate</span><span class="b">£0.45 per 100 Sparks</span></div></div>' +
+    '<div class="card p"><p class="x">Spend limit</p><div class="row between s13 sub" style="margin-top:10px"><span>Today</span><span class="num">' + gbp(S.spentToday) + ' of ' + gbp(S.limit) + '</span></div><div class="goal teal" style="margin-top:6px"><i style="width:' + pct + '%"></i></div></div>' +
+    '<h2 class="h3">Recent activity</h2><div class="list">' + S.activity.map(([t, d, a]) => '<div class="row between" style="padding:10px 0"><span class="grow"><span class="b s14" style="display:block">' + esc(t) + '</span><span class="s12 muted">' + esc(d) + '</span></span><span class="x s14 num">' + esc(a) + '</span></div>').join('') + '</div></div></div>';
+};
+
+V.settings = () => '<div class="scr">' + header('Settings') + '<div class="pad col" style="padding-top:4px"><span class="label" style="margin:0">Privacy and safety</span><div class="card list">' +
+  '<div class="li">Who can call me<span class="muted">Followers</span></div><div class="li">Who can message me<span class="muted">Verified people</span></div>' +
+  '<div class="li">Show when I\'m online' + toggle('pref', S.prefs.online, "Show when I'm online").replace('data-a="pref"', 'data-a="pref" data-v="online"') + '</div>' +
+  '<div class="li">Hidden profile' + toggle('pref', S.prefs.hidden, 'Hidden profile').replace('data-a="pref"', 'data-a="pref" data-v="hidden"') + '</div></div>' +
+  '<span class="label" style="margin:8px 0 0">Demo</span><div class="card list"><button class="li" data-a="reset">Start the demo again<span class="muted" style="width:18px">' + ic('chev') + '</span></button></div>' +
+  '<button class="li" style="padding:0" data-a="logout">Log out</button><button class="li warn" style="padding:0" data-a="delete">Delete account</button></div></div>';
+
+// ---------- render & actions ----------
+function render() {
+  const keepScroll = document.querySelector('.scr')?.scrollTop;
+  app.innerHTML = V[U.view]() + (U.toast ? '<div class="toast" role="status">' + esc(U.toast) + '</div>' : '');
+  if (U.sameView && keepScroll) { const s = document.querySelector('.scr'); if (s) s.scrollTop = keepScroll; }
+  U.sameView = false;
+  const m = document.getElementById('msgs') || document.getElementById('thread');
+  if (m) m.scrollTop = m.scrollHeight;
+  if (U.view === 'setup') checkUser();
+}
+const go = (view, push = true) => { if (push) U.back.push(U.view); U.view = view; U.sheet = null; render(); };
+const back = () => { U.view = U.back.pop() || 'home'; U.sheet = null; render(); };
+const tab = (view) => { stopTimer(); U.back = []; U.view = view; U.sheet = null; render(); };
+const rerender = () => { U.sameView = true; render(); };
+const toast = (t) => { U.toast = t; rerender(); clearTimeout(toast.t); toast.t = setTimeout(() => { U.toast = ''; rerender(); }, 2600); };
+const stopTimer = () => { clearInterval(timer); timer = null; };
+const ask = (title, text, yes, fn) => { U.confirm = { title, text, yes, fn }; U.sheet = 'confirm'; rerender(); };
+const activity = (row) => { S.activity.unshift(row); S.activity = S.activity.slice(0, 20); };
+
+function checkUser() {
+  const u = document.getElementById('f-user'); const hint = document.getElementById('f-user-hint'); const n = document.getElementById('f-name');
+  const ok = /^[a-z0-9._]{3,24}$/.test(u.value) && n.value.trim().length > 0;
+  hint.textContent = /^[a-z0-9._]{3,24}$/.test(u.value) ? 'Looks good' : '3–24 characters: letters, numbers, dots or underscores';
+  hint.className = 's12 ' + (/^[a-z0-9._]{3,24}$/.test(u.value) ? 'teal' : 'coral');
+  u.style.borderColor = /^[a-z0-9._]{3,24}$/.test(u.value) ? 'var(--teal)' : 'var(--coral)';
+  document.getElementById('finish').disabled = !ok;
+}
+
+const A = {
+  go: (v) => go(v), back, tab,
+  guest: () => { S.onboarded = true; save(); U.back = []; go('home', false); },
+  interest: (v) => { const p = U.setupPicked || [...S.profile.interests]; U.setupPicked = p.includes(v) ? p.filter((x) => x !== v) : [...p, v];
+    const n = document.getElementById('f-name').value, u = document.getElementById('f-user').value; rerender(); document.getElementById('f-name').value = n; document.getElementById('f-user').value = u; checkUser(); },
+  finish: () => { S.profile = { name: document.getElementById('f-name').value.trim(), username: document.getElementById('f-user').value, interests: U.setupPicked || S.profile.interests }; S.onboarded = true; save(); U.back = []; go('home', false); },
+  feed: (v) => { U.feed = v; rerender(); if (v !== 'For You') toast(v === 'Following' && !Object.values(S.following).some(Boolean) ? 'Follow someone to fill this feed' : 'Showing the same sample streams'); },
+  cat: (v) => { U.cat = v; rerender(); },
+  search: (v) => { U.q = v; rerender(); },
+  watch: (v) => { const s = streams.find((x) => x.id === v); U.stream = v; U.hearts = 38000; U.chat = [{ who: s.host, text: 'Welcome in! Say hi in the chat.', pin: true }, { who: 'sam_r', text: 'Play Yellow next please' }, { who: 'dan.w', text: 'sent a Rocket · 600 Sparks', gift: true }]; go('live'); },
+  follow: (v) => { S.following[v] = !S.following[v]; save(); rerender(); },
+  heart: () => { U.hearts++; document.getElementById('hearts').textContent = (U.hearts / 1000).toFixed(1) + 'k'; },
+  toast: (v) => toast(v),
+  sheet: (v) => { U.sheet = v; U.err = ''; U.reason = null; U.reported = false; rerender(); },
+  closesheet: () => { U.sheet = null; rerender(); },
+  pick: (v) => { U.pick = v; U.err = ''; rerender(); },
+  sendgift: () => { const g = gifts.find((x) => x.id === U.pick); const s = streams.find((x) => x.id === U.stream); const err = giftError(S.sparks, g.sparks);
+    if (err) { U.err = err; return rerender(); }
+    S.sparks -= g.sparks; activity(['Sent ' + g.name + ' to ' + s.host, 'Just now', sp(g.sparks)]); save();
+    U.chat.push({ who: 'You', text: 'sent a ' + g.name + ' · ' + sp(g.sparks), gift: true }); U.sheet = null; rerender(); },
+  towallet: () => { U.sheet = null; go('wallet'); },
+  reason: (v) => { U.reason = v; rerender(); },
+  report: () => { U.reported = true; rerender(); },
+  block: () => { U.reported = true; rerender(); },
+  aud: (v) => { U.audience = v; rerender(); },
+  opt: (v) => { U.opts[v] = !U.opts[v]; const t = document.getElementById('f-title').value; rerender(); document.getElementById('f-title').value = t; },
+  startlive: () => { const t = document.getElementById('f-title').value.trim(); if (!t) return toast('Give your stream a title first');
+    U.host = { title: t, sec: 0, sparks: 0, req: true, guest: null, muted: false }; U.back.pop(); U.view = 'host'; render();
+    // shortcut: viewers and gifts are simulated; a real build gets these from the live video service.
+    timer = setInterval(() => { const h = U.host; if (!h || U.view !== 'host') return; h.sec++; if (h.sec % 4 === 0) h.sparks += 50;
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('h-clock', 'LIVE ' + clock(h.sec)); set('h-viewers', (40 + h.sec * 3).toLocaleString('en-GB') + ' watching'); set('h-fol', '+' + Math.floor(h.sec / 6)); set('h-sparks', h.sparks.toLocaleString('en-GB')); set('h-earn', gbp(creatorPence(h.sparks))); }, 1000); },
+  'guest-yes': () => { U.host.req = false; U.host.guest = 'ama.keys'; rerender(); },
+  'guest-no': () => { U.host.req = false; rerender(); },
+  'guest-ask': () => { U.host.req = true; rerender(); },
+  mute: () => { U.host.muted = !U.host.muted; rerender(); },
+  slow: (v) => { U.slow = v; rerender(); },
+  fo: () => { U.fo = !U.fo; rerender(); },
+  moddo: (v) => { U.modDone = v; rerender(); },
+  endlive: () => { stopTimer(); const h = U.host; U.summary = { sec: h.sec, sparks: h.sparks, peak: 40 + h.sec * 3 }; U.view = 'summary'; render(); },
+  rec: (v) => { U.rec = v; rerender(); },
+  donelive: () => { S.pending += creatorPence(U.summary.sparks); save(); U.modDone = null; tab('profile'); toast(gbp(creatorPence(U.summary.sparks)) + ' added to pending earnings'); },
+  openchat: (v) => { U.convo = v; go('chat'); },
+  call: () => { U.call = { sec: 0, tip: true, mic: false, cam: false }; go('call');
+    timer = setInterval(() => { if (U.view !== 'call') return stopTimer(); U.call.sec++; const el = document.getElementById('c-clock'); if (el) el.textContent = clock(U.call.sec); }, 1000); },
+  tipok: () => { U.call.tip = false; rerender(); },
+  cmic: () => { U.call.mic = !U.call.mic; rerender(); },
+  ccam: () => { U.call.cam = !U.call.cam; rerender(); },
+  buy: (v) => { const [s, p] = bundles.find((b) => b[0] === +v);
+    ask('Buy ' + sp(s) + '?', gbp(p) + ' would be charged to your app store account. This is a demo, so no money moves.', 'Buy for ' + gbp(p), () => {
+      const err = purchaseError(S.spentToday, S.limit, p); if (err) return toast(err);
+      S.sparks += s; S.spentToday += p; activity(['Bought ' + sp(s), 'Just now', gbp(p)]); save(); toast(sp(s) + ' added'); }); },
+  withdraw: () => { const err = withdrawError(S.avail); if (err) return toast(err);
+    ask('Withdraw ' + gbp(S.avail) + '?', 'It goes to your bank account ending 42 and arrives in about 3 working days. Bank transfers are free.', 'Withdraw', () => {
+      activity(['Payout to bank ••42', 'Just now · arrives in about 3 working days', '−' + gbp(S.avail)]); S.avail = 0; save(); toast('Payout on its way'); }); },
+  confirmyes: () => { const fn = U.confirm.fn; U.sheet = null; U.confirm = null; fn(); rerender(); },
+  pref: (v) => { S.prefs[v] = !S.prefs[v]; save(); rerender(); },
+  reset: () => ask('Start the demo again?', 'This resets your Sparks, messages and profile on this phone.', 'Reset demo', () => { S = fresh(); save(); stopTimer(); U.back = []; U.view = 'welcome'; }),
+  logout: () => { stopTimer(); S.onboarded = false; save(); U.back = []; U.view = 'welcome'; render(); },
+  delete: () => ask('Delete your account?', 'This permanently removes your profile, messages and replays within 30 days. It cannot be undone. In this demo it resets everything.', 'Delete account', () => { S = fresh(); save(); U.back = []; U.view = 'welcome'; }),
+};
+
+app.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-a]');
+  if (!el || el.disabled) return;
+  const fn = A[el.dataset.a];
+  if (fn) { e.preventDefault(); fn(el.dataset.v); }
+});
+app.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const f = e.target.dataset.f;
+  if (f === 'comment') { const i = document.getElementById('f-comment'); const t = i.value.trim(); if (!t) return; U.chat.push({ who: S.profile.username, text: t }); rerender(); }
+  if (f === 'msg') { const i = document.getElementById('f-msg'); const t = i.value.trim(); if (!t) return; (S.messages[U.convo] = S.messages[U.convo] || []).push(['me', t]); save(); rerender(); document.getElementById('f-msg').focus(); }
+});
+app.addEventListener('input', (e) => {
+  if (e.target.id === 'f-q') { U.q = e.target.value; document.getElementById('results').innerHTML = results(); }
+  if (e.target.id === 'f-user') { e.target.value = e.target.value.toLowerCase(); checkUser(); }
+  if (e.target.id === 'f-name') checkUser();
+});
+
+render();
+})();
+</script>
+
+</body>
+</html>
